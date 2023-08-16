@@ -153,14 +153,45 @@ void sw_init() {
 
 void sw_read_loop() {
 
+	char* inputBuff = (char*)malloc(32);
+	char* result = (char*)malloc(32);
+
+	int i = 0;
+
 	char readbuf[2];
 	readbuf[1] = 0;
 
 	while(read(serialPort, readbuf, 1) > 0) {
-		if (readbuf[0] == 0x02 || readbuf[0] == 0x03) 
+		if (readbuf[0] == 0x02 || readbuf[0] == 0x03 || readbuf[0] == 0x0D) 
 			continue;
-		press_keys(readbuf);
+		
+		inputString[i] = readbuf[0];
+		
+		if(inputString[i] == 0x0A){
+			result = extractAndConvert(inputBuff, startIndex, numberOfChars);
+            
+			for(i=0;i<strlen(result);i++){
+				press_keys(result[i]);
+			}
+
+			inputBuff[0] = "\0";
+			result[0] = "\0";
+
+			i = 0;
+			continue;
+		}
+
+		i+=1;
+		if(i >= 32){
+			free(inputBuff);
+			free(result);
+			return 1;
+		}
 	}
+
+	free(inputBuff);
+	free(result);
+	
 	// We're done now
 	close(serialPort);
 }
