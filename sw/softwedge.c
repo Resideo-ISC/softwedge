@@ -32,6 +32,7 @@
 
 
 #include "softwedge.h"
+#include "winaccess.h"
 
 static int serialPort;
 static Display *dpy;
